@@ -8,6 +8,7 @@ import java.io.Serializable;
 
 @Entity
 @Data
+@Table(name = "users")
 public class User implements Serializable {
     private static final long serialVersionUID = 1693850165739564098L;
     @Id
