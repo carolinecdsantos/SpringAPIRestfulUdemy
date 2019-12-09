@@ -24,7 +24,7 @@ CREATE table users_wallet(
 
 CREATE table wallet_items(
     id serial,
-    wallet_id serial,
+    wallet_id integer,
     date  date,
     type varchar(2),
     description varchar (500),
