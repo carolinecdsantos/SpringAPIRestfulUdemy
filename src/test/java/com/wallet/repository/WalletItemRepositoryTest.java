@@ -9,12 +9,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionSystemException;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -112,6 +117,46 @@ public class WalletItemRepositoryTest {
             walletItemRepository.deleteById(walletItemId);
             Optional<WalletItem> response = walletItemRepository.findById(walletItemId);
             assertEquals(response, Optional.empty());
+        }
+    }
+    
+    @Test
+    public void testFindBetweenDates() {
+        Optional<Wallet> wallet1 = walletRepository.findById(walletId);
+
+        LocalDateTime localDateTime = DATE.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        
+        Date currentDatePlusFiveDays = Date.from(localDateTime.plusDays(5).atZone(ZoneId.systemDefault()).toInstant());
+        Date currentDatePlusSevenDays = Date.from(localDateTime.plusDays(7).atZone(ZoneId.systemDefault()).toInstant());
+        
+        walletItemRepository.save(new WalletItem(null, currentDatePlusFiveDays, TYPE, DESCRIPTION, VALUE, wallet1.get()));
+        walletItemRepository.save(new WalletItem(null, currentDatePlusSevenDays, TYPE, DESCRIPTION, VALUE, wallet1.get()));
+
+        
+        Page<WalletItem> response = walletItemRepository.findAllByWalletIdAndDateGreaterThanEqualAndDateLessThanEqual(walletId, DATE, currentDatePlusFiveDays, PageRequest.of(0,10));
+        
+        assertEquals(response.getContent().size(), 2);
+        assertEquals(response.getTotalElements(), 2);
+        assertEquals(response.getContent().get(0).getWallet().getId(), walletId);
+    }
+    
+    @Test
+    public void testFindByType() {
+        List<WalletItem> response = walletItemRepository.findByWalletIdAndType(walletId, TYPE);
+        
+        assertEquals(response.size(), 1);
+        assertEquals(response.get(0).getType(), TYPE);
+    }
+    
+    @Test 
+    public void testSumByWallet()
+    {
+        Optional<Wallet> walletRequest = walletRepository.findById(walletId);
+        if (walletRequest.isPresent()) {
+            WalletItem newWalletItem = new WalletItem(null, DATE, TYPE, "Carteira2", BigDecimal.valueOf(60), walletRequest.get());
+            walletItemRepository.save(newWalletItem);
+            BigDecimal sumWalletResponse = walletItemRepository.sumByWalletId(walletRequest.get().getId());
+            assertEquals(sumWalletResponse.compareTo(BigDecimal.valueOf(560)),0);
         }
     }
 
