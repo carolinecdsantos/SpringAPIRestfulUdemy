@@ -15,10 +15,10 @@ public class UserWallet implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     private User user;
-    @JoinColumn(name = "wallet_id", referencedColumnName = "id")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "wallet_id")
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     private Wallet wallet;
 }
