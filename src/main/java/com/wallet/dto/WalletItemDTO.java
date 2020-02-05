@@ -1,5 +1,6 @@
 package com.wallet.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
@@ -12,6 +13,7 @@ import java.util.Date;
 public class WalletItemDTO {
     private Long id;
     @NotNull(message = "A data não pode ser nula")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy", locale = "pt-BR", timezone = "Brazil/East")
     private Date date;
     @NotNull(message = "O tipo não pode ser nulo")
     @Pattern(regexp = "^(ENTRADA|SAIDA)$", message = "O tipo somente pode ser ENTRADA ou SAIDA")
